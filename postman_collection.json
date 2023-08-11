@@ -1,0 +1,146 @@
+{
+	"info": {
+		"_postman_id": "4d5aec21-9dcb-4f87-aa60-c02258f36e30",
+		"name": "Teste PicPay",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11994904"
+	},
+	"item": [
+		{
+			"name": "Transfer Payer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "value",
+							"value": "1.00",
+							"type": "text"
+						},
+						{
+							"key": "payer",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "payee",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/transaction/transfer/payer-to-payee",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"transfer",
+						"payer-to-payee"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Signup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "Marcia Toledo",
+							"type": "text"
+						},
+						{
+							"key": "cpf_cnpj",
+							"value": "82014028045",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "marciatoledo@yahoo.com",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "fisica",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "Senha123",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/user/signup",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://127.0.0.1:8080",
+			"type": "string"
+		}
+	]
+}

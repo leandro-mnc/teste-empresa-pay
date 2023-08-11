@@ -1,0 +1,70 @@
+version: '3.9'
+
+volumes:
+    logs:
+        name: teste-picpay-logs
+        driver: local
+    db:
+        name: teste-picpay-db
+        driver: local
+    db_testing:
+        name: teste-picpay-db_testing
+        driver: local
+
+networks:
+    teste-picpay-network:
+        name: teste-picpay
+        driver: bridge
+
+services:
+    slim:
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+        container_name: teste-picpay-slim
+        command: php -S 0.0.0.0:8080 -t public
+        environment:
+            docker: "true"
+        ports:
+            - "8080:8080"
+        volumes:
+            - .:/var/www
+            - logs:/var/www/logs
+        depends_on:
+            - db
+        networks:
+            - teste-picpay-network
+
+    db:
+        container_name: teste-picpay-db
+        image: mysql:8.0
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+            - MYSQL_DATABASE=${DB_NAME}
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - TZ=America/Sao_Paulo
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./docker/mysql/database.sql:/docker-entrypoint-initdb.d/database.sql
+            - db:/var/lib/mysql
+        networks:
+            - teste-picpay-network
+ 
+    db_testing:
+        container_name: teste-picpay-db_testing
+        image: mysql:8.0
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+            - MYSQL_DATABASE=${DB_NAME}
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - TZ=America/Sao_Paulo
+        ports:
+            - "3307:3306"
+        volumes:
+            - ./docker/mysql/database.sql:/docker-entrypoint-initdb.d/database.sql
+            - db_testing:/var/lib/mysql
+        networks:
+            - teste-picpay-network
