@@ -17,10 +17,16 @@ return function (ContainerBuilder $containerBuilder) {
                 'displayErrorDetails' => $displayErrorDetails,
                 'logError'            => false,
                 'logErrorDetails'     => false,
+                'session_driver'      => $_ENV['SESSION_DRIVER'],
                 'logger' => [
                     'name' => 'slim-app',
                     'path' => isset($_ENV['docker']) ? 'php://stdout' : __DIR__ . '/../logs/app.log',
                     'level' => Logger::DEBUG,
+                ],
+                'throlling' => [
+                    'enabled' => true,
+                    'limit' => 5,
+                    'period' => 10 // Seconds
                 ],
                 'db' => [
                     'driver' => $_ENV['DB_DRIVER'],
@@ -31,6 +37,11 @@ return function (ContainerBuilder $containerBuilder) {
                     'port' => $_ENV['DB_PORT'],
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_general_ci',
+                ],
+                'redis' => [
+                    'host' => $_ENV['REDIS_HOST'],
+                    'password' => $_ENV['REDIS_PASSWORD'],
+                    'port' => $_ENV['REDIS_PORT'],
                 ]
             ]);
         }

@@ -6,6 +6,10 @@ use App\Application\Settings\SettingsInterface;
 use App\Infrastructure\Persistence\Database;
 use App\Infrastructure\Request\RequestClient;
 use App\Domain\Transaction\Services\TransferNotificationService;
+use App\Infrastructure\Persistence\Redis\Factory as RedisFactory;
+use App\Infrastructure\Persistence\Redis\RedisInterface;
+use App\Infrastructure\Security\Throttling\Throttling;
+use App\Infrastructure\Security\Throttling\ThrottlingRedis;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -35,15 +39,21 @@ return function (ContainerBuilder $containerBuilder) {
 
             $dbSettings = $settings->get('db');
 
-            $capsule = new Manager;
+            $capsule = new Manager();
             $capsule->addConnection($dbSettings);
             $capsule->setAsGlobal();
             $capsule->bootEloquent();
 
             return $capsule;
         },
-        Database::class => function(ContainerInterface $c) {
+        Database::class => function (ContainerInterface $c) {
             return new Database($c);
+        },
+        RedisInterface::class => function () {
+            return RedisFactory::get();
+        },
+        Throttling::class => function (ContainerInterface $c) {
+            return new ThrottlingRedis($c->get(RedisInterface::class));
         },
         TransferNotificationService::class => function (ContainerInterface $c) {
             return new TransferNotificationService(

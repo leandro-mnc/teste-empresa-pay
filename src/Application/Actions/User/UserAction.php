@@ -21,9 +21,12 @@ class UserAction extends Action
 
         $user = $this->signupService->add($data);
 
-        return $this->respondWithData([
-            'message' => 'User added successfully',
-            'user' => $user
-        ], 201);
+        return $this->respondWithData(
+            [
+                'user' => $user
+            ],
+            'User added successfully',
+            201
+        );
     }
 }

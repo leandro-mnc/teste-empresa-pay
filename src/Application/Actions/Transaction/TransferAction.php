@@ -47,7 +47,8 @@ class TransferAction extends Action
         }
 
         return $this->respondWithData(
-            ['message' => 'Transferência realizada com sucesso'],
+            [],
+            'Transferência realizada com sucesso',
             200
         );
     }

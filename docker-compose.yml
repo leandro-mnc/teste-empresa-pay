@@ -10,6 +10,9 @@ volumes:
     db_testing:
         name: teste-picpay-db_testing
         driver: local
+    redis:
+        name: teste-picpay-redis
+        driver: local
 
 networks:
     teste-picpay-network:
@@ -32,6 +35,7 @@ services:
             - logs:/var/www/logs
         depends_on:
             - db
+            - redis
         networks:
             - teste-picpay-network
 
@@ -66,5 +70,17 @@ services:
         volumes:
             - ./docker/mysql/database.sql:/docker-entrypoint-initdb.d/database.sql
             - db_testing:/var/lib/mysql
+        networks:
+            - teste-picpay-network
+
+    redis:
+        container_name: teste-picpay-redis
+        image: redis
+        command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+        hostname: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis:/var/lib/postgresql/data
         networks:
             - teste-picpay-network
