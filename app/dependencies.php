@@ -6,6 +6,8 @@ use App\Application\Settings\SettingsInterface;
 use App\Infrastructure\Persistence\Database;
 use App\Infrastructure\Request\RequestClient;
 use App\Domain\Transaction\Services\TransferNotificationService;
+use App\Infrastructure\Persistence\Redis\Factory as RedisFactory;
+use App\Infrastructure\Persistence\Redis\RedisClient;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -35,15 +37,18 @@ return function (ContainerBuilder $containerBuilder) {
 
             $dbSettings = $settings->get('db');
 
-            $capsule = new Manager;
+            $capsule = new Manager();
             $capsule->addConnection($dbSettings);
             $capsule->setAsGlobal();
             $capsule->bootEloquent();
 
             return $capsule;
         },
-        Database::class => function(ContainerInterface $c) {
+        Database::class => function (ContainerInterface $c) {
             return new Database($c);
+        },
+        RedisClient::class => function () {
+            return RedisFactory::get();
         },
         TransferNotificationService::class => function (ContainerInterface $c) {
             return new TransferNotificationService(

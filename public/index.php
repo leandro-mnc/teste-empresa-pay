@@ -20,7 +20,7 @@ $dotenv->load();
 $containerBuilder = new ContainerBuilder();
 
 if (false) { // Should be set to true in production
-	$containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
+    $containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
 }
 
 // Set up settings
@@ -34,6 +34,10 @@ $dependencies($containerBuilder);
 // Set up repositories
 $repositories = require __DIR__ . '/../app/repositories.php';
 $repositories($containerBuilder);
+
+// Session
+$session = require __DIR__ . '/../app/session.php';
+$session();
 
 // Build PHP-DI Container instance
 $container = $containerBuilder->build();
