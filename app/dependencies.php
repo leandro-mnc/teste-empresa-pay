@@ -7,6 +7,7 @@ use App\Infrastructure\Persistence\Database;
 use App\Infrastructure\Request\RequestClient;
 use App\Domain\Transaction\Services\TransferNotificationService;
 use App\Infrastructure\Persistence\Redis\Factory as RedisFactory;
+use App\Infrastructure\Security\Throttling\Factory as ThrottlingFactory;
 use App\Infrastructure\Persistence\Redis\RedisInterface;
 use App\Infrastructure\Security\Throttling\Throttling;
 use App\Infrastructure\Security\Throttling\ThrottlingRedis;
@@ -53,7 +54,7 @@ return function (ContainerBuilder $containerBuilder) {
             return RedisFactory::get();
         },
         Throttling::class => function (ContainerInterface $c) {
-            return new ThrottlingRedis($c->get(RedisInterface::class));
+            return ThrottlingFactory::get($c);
         },
         TransferNotificationService::class => function (ContainerInterface $c) {
             return new TransferNotificationService(

@@ -13,7 +13,7 @@ return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
         return $response;
     });
-
+    
     $app->group('/user', function (Group $group) {
         $group->post('/signup', [UserAction::class, 'signup']);
     });

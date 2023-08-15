@@ -4,10 +4,13 @@ namespace App\Infrastructure\Security\Throttling;
 
 use App\Infrastructure\Helper\IpHelper;
 use App\Infrastructure\Persistence\Redis\RedisInterface;
+use App\Infrastructure\Helper\Singleton;
 use Exception;
 
 class ThrottlingRedis extends Throttling
 {
+    use Singleton;
+
     public function __construct(private readonly RedisInterface $redis)
     {
     }

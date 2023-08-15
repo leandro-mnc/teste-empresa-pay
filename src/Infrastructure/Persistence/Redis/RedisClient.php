@@ -2,10 +2,13 @@
 
 namespace App\Infrastructure\Persistence\Redis;
 
+use App\Infrastructure\Helper\Singleton;
 use Redis;
 
 class RedisClient implements RedisInterface
 {
+    use Singleton;
+
     private Redis $redis;
 
     public function __construct(string $host, int $port, string $password)
