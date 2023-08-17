@@ -19,13 +19,17 @@ $dotenv->load();
 // Instantiate PHP-DI ContainerBuilder
 $containerBuilder = new ContainerBuilder();
 
-if (false) { // Should be set to true in production
+if ($_ENV['APP_ENV'] === 'production') { // Should be set to true in production
     $containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
 }
 
 // Set up settings
-$settings = require __DIR__ . '/../app/settings.php';
-$settings($containerBuilder);
+$appSettings = require __DIR__ . '/../app/settings.php';
+$appSettings($containerBuilder);
+
+// Load Database
+$database = require __DIR__ . '/../app/database.php';
+$database($containerBuilder);
 
 // Set up dependencies
 $dependencies = require __DIR__ . '/../app/dependencies.php';
@@ -54,10 +58,6 @@ $middleware($app);
 // Register routes
 $routes = require __DIR__ . '/../app/routes.php';
 $routes($app);
-
-// Load Database
-$database = require __DIR__ . '/../app/database.php';
-$database($container);
 
 /** @var SettingsInterface $settings */
 $settings = $container->get(SettingsInterface::class);

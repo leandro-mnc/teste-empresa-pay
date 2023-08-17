@@ -38,6 +38,21 @@ return function (ContainerBuilder $containerBuilder) {
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_general_ci',
                 ],
+                'doctrine' => [
+                    'dev_mode' => $displayErrorDetails,
+                    'cache_dir' => __DIR__ . '/../var/cache/doctrine',
+                    'metadata_dirs' => [__DIR__ . '/../src/Domain'],
+                    'connection' => [
+                        'driver' => 'pdo_' . $_ENV['DB_DRIVER'],
+                        'host' => $_ENV['DB_HOST'],
+                        'port' => $_ENV['DB_PORT'],
+                        'dbname' => $_ENV['DB_NAME'],
+                        'user' => $_ENV['DB_USER'],
+                        'password' => $_ENV['DB_PASSWORD'],
+                        'charset' => 'utf8mb4',
+                        'collation' => 'utf8mb4_general_ci',
+                    ]
+                ],
                 'redis' => [
                     'host' => $_ENV['REDIS_HOST'],
                     'password' => $_ENV['REDIS_PASSWORD'],

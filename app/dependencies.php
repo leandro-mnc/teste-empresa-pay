@@ -2,22 +2,24 @@
 
 declare(strict_types=1);
 
+use App\Application\Actions\User\Validate\UserSignupValidate;
 use App\Application\Settings\SettingsInterface;
-use App\Infrastructure\Persistence\Database;
-use App\Infrastructure\Request\RequestClient;
 use App\Domain\Transaction\Services\TransferNotificationService;
+use App\Domain\User\Repositories\UserRepository;
+use App\Domain\User\Services\UserSignupService;
+use App\Infrastructure\Persistence\Database;
 use App\Infrastructure\Persistence\Redis\Factory as RedisFactory;
-use App\Infrastructure\Security\Throttling\Factory as ThrottlingFactory;
 use App\Infrastructure\Persistence\Redis\RedisInterface;
+use App\Infrastructure\Request\RequestClient;
+use App\Infrastructure\Security\Throttling\Factory as ThrottlingFactory;
 use App\Infrastructure\Security\Throttling\Throttling;
-use App\Infrastructure\Security\Throttling\ThrottlingRedis;
+use App\Infrastructure\Validate\User\UserSignupValitron;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use Illuminate\Database\Capsule\Manager;
 
 return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
@@ -35,18 +37,6 @@ return function (ContainerBuilder $containerBuilder) {
 
             return $logger;
         },
-        'db' => function (ContainerInterface $c) {
-            $settings = $c->get(SettingsInterface::class);
-
-            $dbSettings = $settings->get('db');
-
-            $capsule = new Manager();
-            $capsule->addConnection($dbSettings);
-            $capsule->setAsGlobal();
-            $capsule->bootEloquent();
-
-            return $capsule;
-        },
         Database::class => function (ContainerInterface $c) {
             return new Database($c);
         },
@@ -61,6 +51,17 @@ return function (ContainerBuilder $containerBuilder) {
                 $c->get(LoggerInterface::class),
                 new RequestClient('', 5)
             );
+        },
+        UserSignupService::class => function(ContainerInterface $c) {
+            return new UserSignupService(
+                $c->get(Database::class),
+                $c->get(UserRepository::class),
+                $c->get(UserSignupValidate::class),
+                $c->get(LoggerInterface::class),
+            );
+        },
+        UserSignupValidate::class => function (ContainerInterface $c) {
+            return new UserSignupValidate($c);
         }
     ]);
 };
