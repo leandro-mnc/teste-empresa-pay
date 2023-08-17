@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Domain\Transaction\Feature;
 
-use App\Infrastructure\Persistence\Models\User;
-use App\Infrastructure\Persistence\Models\BankAccount;
-use App\Infrastructure\Persistence\Models\BankAccountTransaction;
-use Illuminate\Database\Capsule\Manager as DB;
 use Tests\TestCase;
 
 class TransferTest extends TestCase

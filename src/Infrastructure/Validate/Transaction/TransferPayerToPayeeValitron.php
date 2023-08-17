@@ -4,15 +4,16 @@ namespace App\Infrastructure\Validate\Transaction;
 
 use App\Infrastructure\Validate\ValidateInterface;
 use App\Infrastructure\Validate\Valitron;
+use Doctrine\ORM\EntityManagerInterface;
 use Valitron\Validator;
 
 class TransferPayerToPayeeValitron extends Valitron implements ValidateInterface
 {
     private Validator $v;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManagerInterface)
     {
-        parent::__construct();
+        parent::__construct($entityManagerInterface);
     }
 
     public function validate(array $data): bool
@@ -40,7 +41,7 @@ class TransferPayerToPayeeValitron extends Valitron implements ValidateInterface
         $this->v->stopOnFirstFail(true);
         $this->v->rule('user_common_exists', 'payer')->message('Apenas pessoa fisíca pode fazer uma transferência');
         $this->v->rule('user_exists', 'payee')->message('Usuário não existe');
-        $this->v->rule('bank_account_balance', 'account_balance')->message('Sem saldo para fazer a transferência');
+        $this->v->rule('bank_account_balance', 'account_balance', 'user_id', 'amount')->message('Sem saldo para fazer a transferência');
 
         return $this->v->validate();
     }

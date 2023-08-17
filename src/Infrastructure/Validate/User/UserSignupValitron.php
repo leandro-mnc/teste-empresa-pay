@@ -4,15 +4,17 @@ namespace App\Infrastructure\Validate\User;
 
 use App\Infrastructure\Validate\ValidateInterface;
 use App\Infrastructure\Validate\Valitron;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Container\ContainerInterface;
 use Valitron\Validator;
 
 class UserSignupValitron extends Valitron implements ValidateInterface
 {
     private Validator $v;
 
-    public function __construct()
+    public function __construct(ContainerInterface $c)
     {
-        parent::__construct();
+        parent::__construct($c->get(EntityManagerInterface::class));
     }
 
     public function validate(array $data)

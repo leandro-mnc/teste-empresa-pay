@@ -23,7 +23,7 @@ class UserAction extends Action
 
         return $this->respondWithData(
             [
-                'user' => $user
+                'user' => $user->toArray()
             ],
             'User added successfully',
             201

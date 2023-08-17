@@ -3,12 +3,12 @@
 namespace App\Domain\User\Services;
 
 use App\Application\Actions\User\Validate\UserSignupValidate;
-use App\Infrastructure\Persistence\Repositories\UserRepository;
+use App\Domain\Transaction\Models\BankAccount;
+use App\Domain\Transaction\Repositories\BankAccountRepository;
+use App\Domain\User\Repositories\UserRepository;
 use App\Infrastructure\Persistence\Database;
-use App\Infrastructure\Persistence\Repositories\BankAccountRepository;
 use App\Infrastructure\Validate\ValidateException;
-use App\Infrastructure\Persistence\Models\User;
-use App\Infrastructure\Persistence\Models\BankAccount;
+use App\Domain\User\Models\User;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -18,6 +18,7 @@ class UserSignupService
         private readonly Database $database,
         private readonly UserRepository $repository,
         private readonly BankAccountRepository $bankAccountRepository,
+        private readonly UserSignupValidate $validate,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -47,7 +48,7 @@ class UserSignupService
             }
 
             // Add bank account
-            $this->addBankAccount($user->id);
+            $this->addBankAccount($user->getId());
 
             $this->database->commit();
 
@@ -66,13 +67,11 @@ class UserSignupService
 
     private function validate(array $data): bool
     {
-        $validate = new UserSignupValidate();
-
-        $valid = $validate->validate($data);
+        $valid = $this->validate->validate($data);
 
         if ($valid === false) {
             throw new ValidateException(
-                $validate->getErrors(),
+                $this->validate->getErrors(),
                 'Não foi possível cadastrar o usuário'
             );
         }

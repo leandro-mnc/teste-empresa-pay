@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace Tests\Domain\Transaction\Unit;
 
 use App\Application\Actions\Transaction\Validate\TransferPayerToPayeeValidate;
-use App\Infrastructure\Persistence\Models\BankAccountTransaction;
-use App\Infrastructure\Persistence\Models\BankAccount;
-use App\Infrastructure\Persistence\Models\User;
-use Illuminate\Database\Capsule\Manager as DB;
 use Tests\TestCase;
 
 class TransferPayerToPayeeValidateTest extends TestCase

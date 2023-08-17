@@ -22,15 +22,16 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.0",
         "ext-json": "*",
         "ext-redis": "*",
+        "doctrine/orm": "^2.16",
         "guzzlehttp/guzzle": "^7.7",
-        "illuminate/database": "^10.18",
         "monolog/monolog": "^2.9",
         "php-di/php-di": "^6.4",
         "slim/psr7": "^1.6",
         "slim/slim": "^4.11",
+        "symfony/cache": "^6.3",
         "vlucas/phpdotenv": "^5.5",
         "vlucas/valitron": "^1.4"
     },

@@ -2,12 +2,23 @@
 
 namespace App\Infrastructure\Validate;
 
-use Illuminate\Database\Capsule\Manager as DB;
+use App\Domain\Transaction\Models\BankAccount;
+use App\Domain\Transaction\Repositories\BankAccountRepository;
+use App\Domain\User\Models\User;
+use App\Domain\User\Repositories\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Valitron\Validator;
 
 class Valitron
 {
-    public function __construct()
+    private UserRepository $userRepository;
+
+    private BankAccountRepository $bankAccountRepository;
+
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
+        $this->userRepository = $this->entityManager->getRepository(User::class);
+        $this->bankAccountRepository = $this->entityManager->getRepository(BankAccount::class);
         $this->initCustomValidation();
     }
 
@@ -38,105 +49,116 @@ class Valitron
 
     private function customValidateUserCommon()
     {
-        \Valitron\Validator::addRule('user_common_exists', function ($field, $value, array $params, array $fields) {
-            $user = DB::table('user')->where('id', $value)->first();
+        Validator::addRule('user_common_exists', function ($field, $value, array $params, array $fields) {
+            /** @var User $user */
+            $user = $this->userRepository->get($value);
 
             if ($user === null) {
                 return false;
             }
 
-            return $user->type === 'F';
+            return $user->getType() === 'Fisíca';
         }, 'User does not exists');
     }
 
     private function customValidateUserCompany()
     {
-        \Valitron\Validator::addRule('user_company_exists', function ($field, $value, array $params, array $fields) {
-            $user = DB::table('user')->where('id', $value)->first();
+        Validator::addRule('user_company_exists', function ($field, $value, array $params, array $fields) {
+            /** @var User $user */
+            $user = $this->userRepository->get($value);
 
             if ($user === null) {
                 return false;
             }
 
-            return $user->type === 'J';
+            return $user->getType() === 'Jurídica';
         }, 'User does not exists');
     }
 
     private function customValidateUserExists()
     {
-        \Valitron\Validator::addRule('user_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('id', $value)->count();
-            return $total > 0;
+        Validator::addRule('user_exists', function ($field, $value, array $params, array $fields) {
+            /** @var User $user */
+            $user = $this->userRepository->get($value);
+
+            return $user instanceof User;
         }, 'Usuário não encontrado');
     }
 
     private function customValidateCpfExists()
     {
-        \Valitron\Validator::addRule('user_cpf_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('cpf_cnpj', $value)->count();
-            return $total > 0;
+        Validator::addRule('user_cpf_exists', function ($field, $value, array $params, array $fields) {
+            $exists = $this->userRepository->cpfCnpjExists($value);
+
+            return $exists;
         }, 'CPF não cadastrado na plataforma');
     }
 
     private function customValidateCnpjExists()
     {
-        \Valitron\Validator::addRule('user_cnpj_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('cpf_cnpj', $value)->count();
-            return $total > 0;
+        Validator::addRule('user_cnpj_exists', function ($field, $value, array $params, array $fields) {
+            $exists = $this->userRepository->cpfCnpjExists($value);
+
+            return $exists;
         }, 'CNPJ não cadastrado na plataforma');
     }
 
     private function customValidateUserEmailExists()
     {
-        \Valitron\Validator::addRule('user_email_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('email', $value)->count();
-            return $total > 0;
+        Validator::addRule('user_email_exists', function ($field, $value, array $params, array $fields) {
+            $exists = $this->userRepository->emailExists($value);
+
+            return $exists;
         }, 'Email não cadastrado na plataforma');
     }
 
     private function customValidateUserNotExists()
     {
-        \Valitron\Validator::addRule('user_not_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('id', $value)->count();
-            return $total < 1;
+        Validator::addRule('user_not_exists', function ($field, $value, array $params, array $fields) {
+            $user = $this->userRepository->get($value);
+
+            return $user === null;
         }, 'Usuário não existe na plataforma');
     }
 
     private function customValidateUserCpfNotExists()
     {
-        \Valitron\Validator::addRule('user_cpf_not_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('cpf_cnpj', $value)->count();
-            return $total < 1;
+        Validator::addRule('user_cpf_not_exists', function ($field, $value, array $params, array $fields) {
+            $exists = $this->userRepository->cpfCnpjExists($value);
+
+            return $exists === false;
         }, 'CPF não existe na plataforma');
     }
 
     private function customValidateUserCnpjNotExists()
     {
-        \Valitron\Validator::addRule('user_cnpj_not_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('cpf_cnpj', $value)->count();
-            return $total < 1;
+        Validator::addRule('user_cnpj_not_exists', function ($field, $value, array $params, array $fields) {
+            $exists = $this->userRepository->cpfCnpjExists($value);
+
+            return $exists === false;
         }, 'CNPJ já cadastrado na plataforma');
     }
 
     private function customValidateUserEmailNotExists()
     {
-        \Valitron\Validator::addRule('user_email_not_exists', function ($field, $value, array $params, array $fields) {
-            $total = DB::table('user')->where('email', $value)->count();
-            return $total < 1;
+        Validator::addRule('user_email_not_exists', function ($field, $value, array $params, array $fields) {
+            $exists = $this->userRepository->emailExists($value);
+
+            return $exists === false;
         }, 'Email já cadastrado na plataforma');
     }
 
     private function customValidateBankAccountBalance()
     {
-        \Valitron\Validator::addRule('bank_account_balance', function ($field, $value, array $params, array $fields) {
+        Validator::addRule('bank_account_balance', function ($field, $value, array $params, array $fields) {
             $data = $fields[$field];
-            $bankAccount = DB::table('bank_account')->where('user_id', $data['user_id'])->first();
+            $bankAccount = $this->bankAccountRepository->getByUserId($data[$params[0]]);
 
             if ($bankAccount === null) {
                 return false;
             }
 
-            return $bankAccount->balance >= $data['amount'];
+            return $bankAccount->getBalance() >= $data[$params[1]];
         }, 'Saldo Insuficiente');
     }
 }

@@ -1,6 +1,5 @@
 .idea/
 # IDE
-.vscode/
 nbproject/
 .DS_STORE
 /coverage/
@@ -22,3 +21,4 @@ composer.lock
 .env
 
 !**/*.example
+!**/.gitkeep

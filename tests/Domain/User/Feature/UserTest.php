@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Domain\User\Feature;
 
-use Illuminate\Database\Capsule\Manager as DB;
 use App\Infrastructure\Persistence\Models\User;
 use App\Infrastructure\Persistence\Models\BankAccount;
 use Tests\TestCase;

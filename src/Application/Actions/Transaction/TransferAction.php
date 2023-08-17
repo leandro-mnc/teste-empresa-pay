@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Application\Actions\Transaction;
 
 use App\Application\Actions\Action;
-use App\Application\Actions\Transaction\Validate\TransferPayerToPayeeValidate;
 use App\Infrastructure\Validate\ValidateException;
 use App\Domain\Transaction\Services\TransferPayerService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -14,8 +13,10 @@ use Psr\Log\LoggerInterface;
 
 class TransferAction extends Action
 {
-    public function __construct(LoggerInterface $logger, private readonly TransferPayerService $transferPayerService)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        private readonly TransferPayerService $transferPayerService,
+    ) {
         $this->logger = $logger;
     }
 
@@ -25,15 +26,6 @@ class TransferAction extends Action
 
         // Post data
         $params = $request->getParsedBody();
-
-        // Validate
-        $validate = new TransferPayerToPayeeValidate();
-        if ($validate->validate($params) === false) {
-            throw new ValidateException(
-                $validate->getErrors(),
-                'A transferência não pode ser realizada'
-            );
-        }
 
         // Transfer Service
         $transferValid = $this->transferPayerService->payerToPayee(
