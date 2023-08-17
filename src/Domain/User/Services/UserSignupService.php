@@ -3,6 +3,8 @@
 namespace App\Domain\User\Services;
 
 use App\Application\Actions\User\Validate\UserSignupValidate;
+use App\Domain\Transaction\Models\BankAccount;
+use App\Domain\Transaction\Repositories\BankAccountRepository;
 use App\Domain\User\Repositories\UserRepository;
 use App\Infrastructure\Persistence\Database;
 use App\Infrastructure\Validate\ValidateException;
@@ -15,6 +17,7 @@ class UserSignupService
     public function __construct(
         private readonly Database $database,
         private readonly UserRepository $repository,
+        private readonly BankAccountRepository $bankAccountRepository,
         private readonly UserSignupValidate $validate,
         private readonly LoggerInterface $logger
     ) {
@@ -45,7 +48,7 @@ class UserSignupService
             }
 
             // Add bank account
-//            $this->addBankAccount($user->getId());
+            $this->addBankAccount($user->getId());
 
             $this->database->commit();
 

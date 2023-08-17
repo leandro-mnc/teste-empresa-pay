@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Entity;
 use App\Infrastructure\Persistence\Doctrine\Model;
-use App\Infrastructure\Persistence\Doctrine\Repositories\UserRepository;
+use App\Infrastructure\Persistence\Doctrine\Repositories\User\UserRepository;
 
 #[Entity(repositoryClass: UserRepository::class), Table(name: 'user')]
 final class User extends Model
@@ -18,19 +18,19 @@ final class User extends Model
 
     #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
     private int $id;
-    
+
     #[Column(type: 'string', name: 'full_name', length: 100, nullable: false)]
     private string $fullName;
-    
+
     #[Column(type: 'string', unique: true, name: 'cpf_cnpj', length: 14, nullable: false)]
     private string $cpfCnpj;
 
     #[Column(type: 'string', unique: true, length: 100, nullable: false)]
     private string $email;
-    
-    #[Column(type: 'string',  length: 100, nullable: false)]
+
+    #[Column(type: 'string', length: 100, nullable: false)]
     private string $password;
-    
+
     #[Column(type: 'string', length: 1, nullable: false)]
     private string $type;
 

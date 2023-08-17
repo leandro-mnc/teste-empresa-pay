@@ -2,10 +2,11 @@
 
 namespace App\Domain\Transaction\Services;
 
+use App\Application\Actions\Transaction\Validate\TransferPayerToPayeeValidate;
+use App\Domain\Transaction\Repositories\BankAccountRepository;
+use App\Domain\Transaction\Repositories\BankAccountTransactionRepository;
+use App\Domain\User\Repositories\UserRepository;
 use App\Infrastructure\Persistence\Database;
-use App\Infrastructure\Persistence\Repositories\UserRepository;
-use App\Infrastructure\Persistence\Repositories\BankAccountRepository;
-use App\Infrastructure\Persistence\Repositories\BankAccountTransactionRepository;
 use App\Infrastructure\Validate\ValidateException;
 use App\Infrastructure\Helper\NumberHelper;
 use Psr\Log\LoggerInterface;
@@ -21,6 +22,7 @@ class TransferPayerService
         private readonly BankAccountTransactionRepository $bankAccountTransactionRepository,
         private readonly TransferAuthorizeService $transferAuthorizeService,
         private readonly TransferNotificationService $transferNotificationService,
+        private readonly TransferPayerToPayeeValidate $validate,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -29,6 +31,9 @@ class TransferPayerService
     {
         try {
             $this->database->beginTransaction();
+
+            // Validate
+            $this->validate(['payer' => $payer, 'payee' => $payee, 'value' => $amount]);
 
             // Payer not authorized to transfer
             if ($this->isPayerAuthorizatedToTransfer() === false) {
@@ -80,17 +85,17 @@ class TransferPayerService
         $payeeAccount = $this->bankAccountRepository->getByUserId($payee);
 
         // Payer Transaction
-        $descriptionPayer = 'Transferência para ' . $userPayee->full_name;
+        $descriptionPayer = 'Transferência para ' . $userPayee->getFullName();
         $this->bankAccountTransactionRepository->add(
-            $payerAccount->id,
+            $payerAccount->getId(),
             $amount * -1,
             $descriptionPayer
         );
 
         // Payee Transaction
-        $descriptionPayee = 'Transferência recebida de ' . $userPayer->full_name;
+        $descriptionPayee = 'Transferência recebida de ' . $userPayer->getFullName();
         $this->bankAccountTransactionRepository->add(
-            $payeeAccount->id,
+            $payeeAccount->getId(),
             $amount,
             $descriptionPayee
         );
@@ -109,9 +114,20 @@ class TransferPayerService
         $description = 'Você recebeu uma transferência de %s no valor de %s';
 
         $this->transferNotificationService->notifyPayee(
-            $userPayee->full_name,
-            $userPayee->email,
-            sprintf($description, $userPayer->full_name, NumberHelper::currencyFormat($amount))
+            $userPayee->getFullName(),
+            $userPayee->getEmail(),
+            sprintf($description, $userPayer->getFullName(), NumberHelper::currencyFormat($amount))
         );
+    }
+
+    private function validate(array $params)
+    {
+        // Validate
+        if ($this->validate->validate($params) === false) {
+            throw new ValidateException(
+                $this->validate->getErrors(),
+                'A transferência não pode ser realizada'
+            );
+        }
     }
 }

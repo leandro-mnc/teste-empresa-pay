@@ -2,6 +2,8 @@
 
 namespace App\Infrastructure\Validate;
 
+use App\Domain\Transaction\Models\BankAccount;
+use App\Domain\Transaction\Repositories\BankAccountRepository;
 use App\Domain\User\Models\User;
 use App\Domain\User\Repositories\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,10 +12,13 @@ use Valitron\Validator;
 class Valitron
 {
     private UserRepository $userRepository;
-    
+
+    private BankAccountRepository $bankAccountRepository;
+
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
         $this->userRepository = $this->entityManager->getRepository(User::class);
+        $this->bankAccountRepository = $this->entityManager->getRepository(BankAccount::class);
         $this->initCustomValidation();
     }
 
@@ -66,7 +71,7 @@ class Valitron
                 return false;
             }
 
-            return $user->type === 'Jurídica';
+            return $user->getType() === 'Jurídica';
         }, 'User does not exists');
     }
 
@@ -83,7 +88,6 @@ class Valitron
     private function customValidateCpfExists()
     {
         Validator::addRule('user_cpf_exists', function ($field, $value, array $params, array $fields) {
-            /** @var User $user */
             $exists = $this->userRepository->cpfCnpjExists($value);
 
             return $exists;
@@ -92,8 +96,7 @@ class Valitron
 
     private function customValidateCnpjExists()
     {
-        Validator::addRule('user_cnpj_exists', function ($field, $value, array $params, array $fields) {            
-            /** @var User $user */
+        Validator::addRule('user_cnpj_exists', function ($field, $value, array $params, array $fields) {
             $exists = $this->userRepository->cpfCnpjExists($value);
 
             return $exists;
@@ -103,7 +106,6 @@ class Valitron
     private function customValidateUserEmailExists()
     {
         Validator::addRule('user_email_exists', function ($field, $value, array $params, array $fields) {
-            /** @var User $user */
             $exists = $this->userRepository->emailExists($value);
 
             return $exists;
@@ -113,7 +115,6 @@ class Valitron
     private function customValidateUserNotExists()
     {
         Validator::addRule('user_not_exists', function ($field, $value, array $params, array $fields) {
-            /** @var User $user */
             $user = $this->userRepository->get($value);
 
             return $user === null;
@@ -123,9 +124,8 @@ class Valitron
     private function customValidateUserCpfNotExists()
     {
         Validator::addRule('user_cpf_not_exists', function ($field, $value, array $params, array $fields) {
-            /** @var User $user */
             $exists = $this->userRepository->cpfCnpjExists($value);
-            
+
             return $exists === false;
         }, 'CPF não existe na plataforma');
     }
@@ -133,7 +133,6 @@ class Valitron
     private function customValidateUserCnpjNotExists()
     {
         Validator::addRule('user_cnpj_not_exists', function ($field, $value, array $params, array $fields) {
-            /** @var User $user */
             $exists = $this->userRepository->cpfCnpjExists($value);
 
             return $exists === false;
@@ -143,7 +142,6 @@ class Valitron
     private function customValidateUserEmailNotExists()
     {
         Validator::addRule('user_email_not_exists', function ($field, $value, array $params, array $fields) {
-            /** @var User $user */
             $exists = $this->userRepository->emailExists($value);
 
             return $exists === false;
@@ -154,13 +152,13 @@ class Valitron
     {
         Validator::addRule('bank_account_balance', function ($field, $value, array $params, array $fields) {
             $data = $fields[$field];
-            $bankAccount = DB::table('bank_account')->where('user_id', $data['user_id'])->first();
+            $bankAccount = $this->bankAccountRepository->getByUserId($data[$params[0]]);
 
             if ($bankAccount === null) {
                 return false;
             }
 
-            return $bankAccount->balance >= $data['amount'];
+            return $bankAccount->getBalance() >= $data[$params[1]];
         }, 'Saldo Insuficiente');
     }
 }

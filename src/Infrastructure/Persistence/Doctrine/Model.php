@@ -3,19 +3,22 @@
 namespace App\Infrastructure\Persistence\Doctrine;
 
 use App\Infrastructure\Persistence\Doctrine\Helper\Fill;
+use Doctrine\Inflector\InflectorFactory;
 
 abstract class Model
 {
     use Fill;
-    
+
     protected string $primaryKey = 'id';
 
-    protected bool $timestamp = false;
-    
+    protected bool $timestamp = true;
+
     protected array $fillable = [];
 
     public function toArray()
     {
+        $inflector = InflectorFactory::create()->build();
+
         $methods = get_class_methods($this);
         $array = [];
         foreach ($methods as $methodName) {
@@ -30,9 +33,9 @@ abstract class Model
             if (preg_match('/^get(.+)$/', $methodName, $matches) === false) {
                 continue;
             }
-            
+
             // beautify array keys
-            $key = Inflector::tableize($matches[1]);
+            $key = $inflector->tableize($matches[1]);
             // filter unwanted data
             if (in_array($key, $this->fillable) === false) {
                 continue;

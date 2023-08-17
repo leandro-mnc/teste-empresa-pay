@@ -25,19 +25,21 @@ services:
             context: .
             dockerfile: docker/php/Dockerfile
         container_name: teste-picpay-slim
-        command: php -S 0.0.0.0:8080 -t public
         environment:
             docker: "true"
         ports:
-            - "8080:8080"
+            - "8080:80"
+            - "9003"
         volumes:
-            - .:/var/www
-            - logs:/var/www/logs
+            - .:/var/www/html
+            - logs:/var/www/html/logs
         depends_on:
             - db
             - redis
         networks:
             - teste-picpay-network
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     db:
         container_name: teste-picpay-db

@@ -9,15 +9,15 @@ trait Fill
         foreach ($data as $column => $value) {
             $this->setColumnValueByName($column, $value);
         }
-        
+
         if ($this->timestamp === true) {
             $this->setTimestamps($update);
         }
     }
-    
+
     private function setColumnValueByName($column, $value)
     {
-        $columnCamelCase = $this->dashesToCamelCase($column, false);
+        $columnCamelCase = $this->strToCamelCase($column, false);
         $method = sprintf('set%s', ucfirst($columnCamelCase));
 
         if (method_exists($this, $method)) {
@@ -29,9 +29,12 @@ trait Fill
         }
     }
 
-    private function dashesToCamelCase($string, $capitalizeFirstCharacter = false): string
+    private function strToCamelCase($string, $capitalizeFirstCharacter = false): string
     {
-        $str = str_replace('-', '', ucwords($string, '-'));
+        $str = ucwords($string, '_');
+        $str = ucwords($string, '-');
+        $str = preg_replace('/_+/', '', $str);
+        $str = preg_replace('/-+/', '', $str);
 
         if (!$capitalizeFirstCharacter) {
             $str = lcfirst($str);
@@ -39,11 +42,11 @@ trait Fill
 
         return $str;
     }
-    
+
     private function setTimestamps(bool $update)
-    {        
+    {
         $this->setCreatedAt(new \DateTimeImmutable('now'));
-        
+
         if ($update === true) {
             $this->setUpdatedAt(new \DateTimeImmutable('now'));
         }

@@ -39,6 +39,10 @@ $dependencies($containerBuilder);
 $repositories = require __DIR__ . '/../app/repositories.php';
 $repositories($containerBuilder);
 
+// Set up repositories
+$services = require __DIR__ . '/../app/services.php';
+$services($containerBuilder);
+
 // Session
 $session = require __DIR__ . '/../app/session.php';
 $session();

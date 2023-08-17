@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Persistence\Doctrine\Repositories;
+namespace App\Infrastructure\Persistence\Doctrine\Repositories\User;
 
 use Doctrine\ORM\EntityRepository;
 use App\Domain\User\Repositories\UserRepository as UserRepositoryInterface;
@@ -18,16 +18,16 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
             'password' => $password,
             'type' => $type,
         ]);
-        
+
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
 
-        return $user;        
+        return $user;
     }
 
     public function get(int $id): ?User
     {
-        return $this->find(User::class, $id);        
+        return $this->find($id);
     }
 
     public function cpfCnpjExists(string $cpfCpnpj): bool
