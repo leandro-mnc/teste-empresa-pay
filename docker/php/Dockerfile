@@ -31,6 +31,12 @@ RUN yes | pecl install ${XDEBUG_VERSION} \
     && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.idekey=IDE" >> /usr/local/etc/php/conf.d/xdebug.ini
 
+#install some base extensions
+RUN apt-get install -y \
+        libzip-dev \
+        zip \
+  && docker-php-ext-install zip
+
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/local/bin/composer
 
 EXPOSE 80 9003
